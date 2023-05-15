@@ -1,0 +1,15 @@
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\bin\Debug\net7.0\Allog-Aula4.exe
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\bin\Debug\net7.0\Allog-Aula4.deps.json
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\bin\Debug\net7.0\Allog-Aula4.runtimeconfig.json
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\bin\Debug\net7.0\Allog-Aula4.dll
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\bin\Debug\net7.0\Allog-Aula4.pdb
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\obj\Debug\net7.0\Allog-Aula4.csproj.AssemblyReference.cache
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\obj\Debug\net7.0\Allog-Aula4.GeneratedMSBuildEditorConfig.editorconfig
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\obj\Debug\net7.0\Allog-Aula4.AssemblyInfoInputs.cache
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\obj\Debug\net7.0\Allog-Aula4.AssemblyInfo.cs
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\obj\Debug\net7.0\Allog-Aula4.csproj.CoreCompileInputs.cache
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\obj\Debug\net7.0\Allog-Aula4.dll
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\obj\Debug\net7.0\refint\Allog-Aula4.dll
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\obj\Debug\net7.0\Allog-Aula4.pdb
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\obj\Debug\net7.0\Allog-Aula4.genruntimeconfig.cache
+D:\Faculdade\AllogEnter\AllogEnter-Aula4\Allog-Aula4\obj\Debug\net7.0\ref\Allog-Aula4.dll
