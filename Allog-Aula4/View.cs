@@ -16,6 +16,14 @@ namespace AllogAula4
                 "-----\n"
             );
         }
+        public void processoConcluido() {
+            Console.WriteLine(
+                "-----\n" +
+                "PROCESSO CONCLUÍDO COM SUCESSO\n" +
+                "Pressione ENTER para prosseguir.\n" +
+                "-----\n"
+            );
+        }
         public void menuPrincipal() {
             Console.WriteLine(
                 "--SISTEMA DE DADOS - CLIENTES--\n" +

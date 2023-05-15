@@ -9,8 +9,9 @@ namespace AllogAula4
     class Controller {
         public Controller() {}
 
-        List<Cliente> getListaClientes(StreamReader leitorArquivo) {
-            List<Cliente> listaCliente = new List<Cliente>();
+        List<Cliente> getListaClientes(string filepath) {
+            StreamReader leitorArquivo = new StreamReader(filepath);
+            List<Cliente> listaClientes = new List<Cliente>();
             string linha;
             string[] linhaSeparada;
 
@@ -22,14 +23,11 @@ namespace AllogAula4
                 
                 linhaSeparada = linha.Split(",");
 
-                try {
-                    listaCliente.Add(new Cliente(Convert.ToInt32(linhaSeparada[0]), linhaSeparada[1], linhaSeparada[2], linhaSeparada[3], linhaSeparada[4]));
-                } catch(Exception e) {
-                    
-                }
+                listaClientes.Add(new Cliente(Convert.ToInt32(linhaSeparada[0]), linhaSeparada[1], linhaSeparada[2], linhaSeparada[3], linhaSeparada[4]));
             }
 
-            return listaCliente;
+            leitorArquivo.Close();
+            return listaClientes;
         }
 
         void updateArquivoClientes(string filepath, List<Cliente> listaClientes) {
@@ -48,6 +46,31 @@ namespace AllogAula4
             escritorArquivo.Close();
         }
 
+        // O e-mail será válido caso contenha um apenas um '@' e pelo menos um '.', seu primeiro caractere não seja '@' e '.', não contenha caracteres especiais, e possua tamanho maior ou igual a 10
+        bool verificarEmail(string email) {
+            string caracteresInvalidos = "!#$%¨&*()-=+{}[]/?ºª§¹²³£¢¬^~:;,<>ç";
+
+            if(email.StartsWith('@'))
+                return false;
+            int arrobaContador = 0;
+            foreach(char c in email)
+                if(c.Equals('@'))
+                    arrobaContador += 1;
+            if(arrobaContador != 1)
+                return false;
+            if(!email.Contains("."))
+                return false;
+            if(email.StartsWith('.'))
+                return false;
+            if(email.Count() < 10)
+                return false;
+            foreach(char c in caracteresInvalidos)
+                if(email.Contains(c))
+                    return false;
+            
+            return true;
+        }
+
         void inserirCliente(List<Cliente> listaClientes) {
             string[] vetorAtributos = {"NOME", "EMAIL", "ENDERECO", "TELEFONE"};
             string[] vetorInputs = new string[4];
@@ -60,6 +83,9 @@ namespace AllogAula4
                 vetorInputs[i] = Console.ReadLine();
                 if(vetorInputs[i].Equals("") || vetorInputs[i].Equals(null))
                     throw new Exception();
+                if(i == 1)
+                    if(!verificarEmail(vetorInputs[i]))
+                        throw new Exception();
             }
 
             if(listaClientes.Count() < 1)
@@ -71,38 +97,104 @@ namespace AllogAula4
             listaClientes.Add(newCliente);
         }
 
-        void editarCliente(List<Cliente> listaClientes, int id) {
+        void editarCliente(List<Cliente> listaClientes) {
+            int id;
+            int selecaoAtributo;
+            string input;
 
+            Console.WriteLine("Insira o ID do usuário:");
+            id = Convert.ToInt32(Console.ReadLine());
+
+            bool idExistente = false;
+            foreach(Cliente cliente in listaClientes)
+                if(cliente.getId().Equals(id))
+                    idExistente = true;
+            if(!idExistente)
+                throw new Exception();
+
+            Console.WriteLine(
+                "Insira o atributo a ser editado:\n" +
+                "1- NOME\n" +
+                "2- EMAIL\n" +
+                "3- ENDERECO\n" +
+                "4- TELEFONE\n"
+            );
+            selecaoAtributo = Convert.ToInt32(Console.ReadLine());
+
+            while(true) {
+                Console.WriteLine("Insira uma nova informação.");
+                input = Console.ReadLine();
+
+                if(selecaoAtributo != 2)
+                    break;
+                if(!verificarEmail(input))
+                    break;
+                if(!input.Equals(""))
+                    break;
+
+                Console.WriteLine("--INFORMAÇÃO INVÁLIDA--");
+            }
+
+            switch(selecaoAtributo) {
+                case 1:
+                    listaClientes.ElementAt(id).setNome(input);
+                    break;
+                case 2:
+                    listaClientes.ElementAt(id).setEmail(input);
+                    break;
+                case 3:
+                    listaClientes.ElementAt(id).setEndereco(input);
+                    break;
+                case 4:
+                    listaClientes.ElementAt(id).setTelefone(input);
+                    break;
+            }
+        }
+
+        void deletarCliente(List<Cliente> listaClientes) {
+            int id;
+            Cliente clienteDeletar = new Cliente(-1,"","","","");
+
+            Console.WriteLine("Insira o ID do usuário:");
+            id = Convert.ToInt32(Console.ReadLine());
+
+            bool idExistente = false;
+            foreach(Cliente cliente in listaClientes) {
+                if(cliente.getId().Equals(id)) {
+                    idExistente = true;
+                    clienteDeletar = cliente;
+                }
+            }
+            if(!idExistente)
+                throw new Exception();
+            
+            listaClientes.Remove(clienteDeletar);
         }
 
 
         public void Run(string filepath) {
             View view = new View();
             FileStream fileStream;
-            StreamReader leitorArquivo;
             StreamWriter escritorArquivo;
+            List<Cliente> listaClientes;
             int inputMenu;
 
             //Verifica a existência do arquivo. Caso o arquivo não exista, ele é criado.
             if(!File.Exists(filepath)) {
                 fileStream = new FileStream(filepath, FileMode.OpenOrCreate);
                 fileStream.Close();
-                Thread.Sleep(1000);
                 escritorArquivo = new StreamWriter(filepath);
                 escritorArquivo.WriteLine("ID,NOME,EMAIL,ENDERECO,TELEFONE");
                 escritorArquivo.Close();
             }
             
-            //
             try {
-                leitorArquivo = new StreamReader(filepath);
+                listaClientes = getListaClientes(filepath);
             } catch(Exception e) {
                 Console.WriteLine("Não foi possível abrir o arquivo. Finalizando aplicação.");
+                Console.ReadLine();
                 return;
             }
-
-            List<Cliente> listaClientes = getListaClientes(leitorArquivo);
-            leitorArquivo.Close();
 
             bool mainLoopAtivo = true;
             while(mainLoopAtivo) {
@@ -127,6 +219,8 @@ namespace AllogAula4
                         try {
                             inserirCliente(listaClientes);
                             updateArquivoClientes(filepath, listaClientes);
+                            view.processoConcluido();
+                            Console.ReadLine();
                         } catch(Exception e) {
                             view.inputInvalido();
                             Console.ReadLine();
@@ -135,11 +229,29 @@ namespace AllogAula4
                         break;
 
                     case 2: //EDITAR CLIENTE
-                        inputMenu = 1;
+                        try {
+                            editarCliente(listaClientes);
+                            updateArquivoClientes(filepath, listaClientes);
+                            view.processoConcluido();
+                            Console.ReadLine();
+                        } catch(Exception e) {
+                            view.inputInvalido();
+                            Console.ReadLine();
+                            continue;
+                        }
                         break;
 
                     case 3: //DELETAR CLIENTE
-                        inputMenu = 1;
+                        try {
+                            deletarCliente(listaClientes);
+                            updateArquivoClientes(filepath, listaClientes);
+                            view.processoConcluido();
+                            Console.ReadLine();
+                        } catch(Exception e) {
+                            view.inputInvalido();
+                            Console.ReadLine();
+                            continue;
+                        }
                         break;
 
                     case 4: //VISUALIZAR CLIENTES

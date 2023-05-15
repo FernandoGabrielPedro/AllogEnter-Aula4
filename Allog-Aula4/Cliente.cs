@@ -27,9 +27,7 @@ namespace AllogAula4
         public string getTelefone() {return this.telefone;}
         public void setTelefone(string telefone){this.telefone = telefone;}
 
-        public Cliente(int id) {
-            this.id = id;
-        }
+        public Cliente() {}
         public Cliente(int id, string nome, string email, string endereco, string telefone) {
             this.id = id;
             this.nome = nome;
