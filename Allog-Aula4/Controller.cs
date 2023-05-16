@@ -78,9 +78,9 @@ namespace AllogAula4
                 if(email.Contains(Convert.ToString(c)))
                     return false;
             */
-            Regex verificacaoEmail = new Regex("^(\w+)([\.\-\_]\w+)*@(\w+)(\.\w+)+");
+            Regex regex = new Regex(@"^\w+([\.\-_]\w+)*@\w+(\.\w+)+$");
 
-            if(verificacaoEmail.Match(email).Success())
+            if(regex.Match(email).Success)
                 return true;
             return false;
         }
@@ -181,7 +181,7 @@ namespace AllogAula4
         //Deleta o cliente que possua o id inserido da lista de clientes
         void deletarCliente(List<Cliente> listaClientes) {
             int id;
-            Cliente clienteDeletar;
+            Cliente clienteDeletar = new Cliente();
 
             Console.WriteLine("Insira o ID do usuário:");
             id = Convert.ToInt32(Console.ReadLine());
