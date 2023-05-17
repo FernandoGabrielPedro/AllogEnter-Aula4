@@ -8,10 +8,10 @@ namespace AllogAula4
 {
     class View {
 
-        public void inputInvalido() {
+        public void operacaoInterrompida() {
             Console.WriteLine(
                 "-----\n" +
-                "ERRO: INSERÇÃO INVÁLIDA\n" +
+                "OPERAÇÃO INTERROMPIDA\n" +
                 "Pressione ENTER para prosseguir.\n" +
                 "-----\n"
             );

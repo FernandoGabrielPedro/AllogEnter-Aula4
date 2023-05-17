@@ -55,29 +55,8 @@ namespace AllogAula4
             escritorArquivo.Close();
         }
 
-        // O e-mail será válido caso contenha um apenas um '@' e pelo menos um '.', seu primeiro caractere não seja '@' e '.', não contenha caracteres especiais, e possua tamanho maior ou igual a 10
+        // Verifica o e-mail a partir de uma expressão Regex
         bool verificarEmail(string email) {
-            /*
-            string caracteresInvalidos = "!#$%¨&*()-=+{}[]/?ºª§¹²³£¢¬^~:;,<>ç";
-
-            if(email.StartsWith('@'))
-                return false;
-            int arrobaContador = 0;
-            foreach(char c in email)
-                if(c.Equals('@'))
-                    arrobaContador += 1;
-            if(arrobaContador != 1)
-                return false;
-            if(!email.Contains('.'))
-                return false;
-            if(email.StartsWith('.'))
-                return false;
-            if(email.Count() < 10)
-                return false;
-            foreach(char c in caracteresInvalidos)
-                if(email.Contains(Convert.ToString(c)))
-                    return false;
-            */
             Regex regex = new Regex(@"^\w+([\.\-_]\w+)*@\w+(\.\w+)+$");
 
             if(regex.Match(email).Success)
@@ -85,13 +64,32 @@ namespace AllogAula4
             return false;
         }
 
+        bool verificarTelefone(string telefone) {
+            Regex regex = new Regex(@"^(\+[0-9]+ )?(\([0-9]+\))*[0-9-]+$");
+
+            if(regex.Match(telefone).Success)
+                return true;
+            return false;
+        }
+
+        //Itera por todos os clientes da lista, e retorna true caso exista um cliente que possua esse id
+        bool verificarId(int id, List<Cliente> listaClientes) {
+            foreach(Cliente cliente in listaClientes) {
+                if(cliente.getId().Equals(id)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         //Insere um novo Cliente ao final da lista de clientes.
-        void inserirCliente(List<Cliente> listaClientes) {
+        bool inserirCliente(List<Cliente> listaClientes) {
             string[] vetorAtributos = {"NOME", "EMAIL", "ENDERECO", "TELEFONE"};
             string[] vetorInputs = new string[4];
             int id;
 
             Console.Clear();
+            Console.WriteLine("--INSIRA '/' PARA INTERROMPER O PROCESSO\n");
 
             //Recebe um input do usuário para cada um dos atributos, ou seja, para NOME, EMAIL, ENDERECO e TELEFONE, e os armazena em um vetor
             for(int i = 0;i < 4;i++) {
@@ -99,11 +97,26 @@ namespace AllogAula4
 
                 vetorInputs[i] = Console.ReadLine();
 
-                if(vetorInputs[i].Equals("") || vetorInputs[i].Equals(null))
-                    throw new Exception(); //Caso o input seja vazio ou nulo, gera um erro
-                if(i == 1)
-                    if(!verificarEmail(vetorInputs[i]))
-                        throw new Exception(); //Caso seja EMAIL, verifica se ele é válido. Caso contráio, gera um erro.
+                //Caso o input seja '/', interrompe a operação
+                if("/".Equals(vetorInputs[i]))
+                    return false;
+
+                //Caso o input seja vazio ou nulo, seja um e-mail inválido, ou seja um telefone inválido, repete a inserção daquele valor
+                if(vetorInputs[i].Equals("") || vetorInputs[i].Equals(null)) {
+                    Console.WriteLine("--INPUT INVÁLIDO--");
+                    i--;
+                    continue;
+                }
+                if((i == 1 && !verificarEmail(vetorInputs[i]))) {
+                    Console.WriteLine("--INPUT INVÁLIDO--");
+                    i--;
+                    continue;
+                }
+                if((i == 3 && !verificarTelefone(vetorInputs[i]))) {
+                    Console.WriteLine("--INPUT INVÁLIDO--");
+                    i--;
+                    continue;
+                }
             }
 
             //Se não houver clientes na lista, o id do novo cliente será 0. Caso contrário, será o id do último cliente da lista + 1.
@@ -115,54 +128,103 @@ namespace AllogAula4
             //Gera um novo cliente com os atributos inseridos, e o insere ao final da lista
             Cliente newCliente = new Cliente(id, vetorInputs[0], vetorInputs[1], vetorInputs[2], vetorInputs[3]);
             listaClientes.Add(newCliente);
+            return true;
         }
 
         //Edita um atributo de um elemento da lista de clientes.
-        void editarCliente(List<Cliente> listaClientes) {
-            int id;
-            int selecaoAtributo;
-            string input;
+        bool editarCliente(List<Cliente> listaClientes) {
+            int id = 0;
+            int selecaoAtributo = 0;
+            bool insercaoEmAndamento;
+            string input = "";
 
-            //Recebe o id por input
-            Console.WriteLine("Insira o ID do usuário:");
-            id = Convert.ToInt32(Console.ReadLine());
+            Console.Clear();
+            Console.WriteLine("--INSIRA '/' PARA INTERROMPER O PROCESSO\n");
 
-            //Itera por todos os clientes da lista, e verifica se existe um cliente que possua esse id
-            bool idExistente = false;
-            foreach(Cliente cliente in listaClientes) {
-                if(cliente.getId().Equals(id)) {
-                    idExistente = true;
-                    break;
+            //Loop para receber um id, encerra ao receber um id válido
+            insercaoEmAndamento = true;
+            while(insercaoEmAndamento) {
+                Console.WriteLine("Insira o ID do usuário:");
+                input = Console.ReadLine();
+
+                //Caso o input seja '/', interrompe a operação
+                if("/".Equals(input))
+                    return false;
+                
+                //Tenta converter o input em um id válido
+                try {
+                    id = Convert.ToInt32(input);
+                    if(verificarId(id, listaClientes))
+                        insercaoEmAndamento = false; //Caso seja válido e não ocorram erros, continua a operação
+                } catch(Exception e) {
+                } finally {
+                    if(insercaoEmAndamento)
+                        Console.WriteLine("--INSERÇÃO INVÁLIDA--");
                 }
             }
-            if(!idExistente)
-                throw new Exception(); //Caso contrário, emite um erro
 
-            Console.WriteLine(
-                "Insira o atributo a ser editado:\n" +
-                "1- NOME\n" +
-                "2- EMAIL\n" +
-                "3- ENDERECO\n" +
-                "4- TELEFONE\n"
-            );
-            //Recebe um input para selecionar o atributo desejado
-            selecaoAtributo = Convert.ToInt32(Console.ReadLine());
+            //Loop para receber um atributo, encerra ao receber um atributo válido
+            insercaoEmAndamento = true;
+            while(insercaoEmAndamento) {
+                Console.WriteLine(
+                    "Insira o atributo a ser editado:\n" +
+                    "1- NOME\n" +
+                    "2- EMAIL\n" +
+                    "3- ENDERECO\n" +
+                    "4- TELEFONE\n"
+                );
+                input = Console.ReadLine();
 
-            while(true) {
-                Console.WriteLine("Insira uma nova informação.");
+                //Caso o input seja '/', interrompe a operação
+                if("/".Equals(input))
+                    return false;
+                
+                //Tenta converter o input em um atributo válido
+                try {
+                    selecaoAtributo = Convert.ToInt32(input);
+                    if(selecaoAtributo > 0 && selecaoAtributo < 5)
+                        insercaoEmAndamento = false; //Caso seja válido e não ocorram erros, continua a operação
+                } catch(Exception e) {
+                }
+                finally {
+                    if(insercaoEmAndamento)
+                        Console.WriteLine("--INSERÇÃO INVÁLIDA--");
+                }
+            }
+
+            //Loop para receber a nova edição do atributo, encerra ao receber um input válido
+            insercaoEmAndamento = true;
+            while(insercaoEmAndamento) {
+                Console.WriteLine("Insira a nova informação.");
                 input = Console.ReadLine(); //Recebe um input
 
-                if(!input.Equals("") & !input.Equals(null)) { //Caso o email não seja vazio ou nulo, prossegue
-                    if(selecaoAtributo != 2) //Caso não for uma edição de email, prossegue
-                        break;
-                    if(verificarEmail(input)) //Caso o email seja verificado, prossegue
-                        break;
+                //Caso o input seja '/', interrompe a operação
+                if("/".Equals(input))
+                    return false;
+
+                if(!input.Equals("") & !input.Equals(null)) { //Caso a nova informação não seja vazia ou null, prossegue
+                    switch(selecaoAtributo) {
+                        case 2:
+                            if(verificarEmail(input)) //Caso o email seja verificado, prossegue
+                                insercaoEmAndamento = false;
+                            break;
+                        case 4:
+                            if(verificarTelefone(input)) //Caso o email seja verificado, prossegue
+                                insercaoEmAndamento = false;
+                            break;
+                        default:
+                            insercaoEmAndamento = false; //Caso não necessite de verificação (nome, endereço), prossegue
+                            break;
+                    }
+                    
                 }
 
-                Console.WriteLine("--INFORMAÇÃO INVÁLIDA--");
+                if(insercaoEmAndamento)
+                    Console.WriteLine("--INFORMAÇÃO INVÁLIDA--");
             }
 
-            switch(selecaoAtributo) { //Edita o atributo relevante
+            //Edita o atributo relevante
+            switch(selecaoAtributo) {
                 case 1:
                     listaClientes.ElementAt(id).setNome(input);
                     break;
@@ -176,27 +238,45 @@ namespace AllogAula4
                     listaClientes.ElementAt(id).setTelefone(input);
                     break;
             }
+
+            return true;
         }
 
         //Deleta o cliente que possua o id inserido da lista de clientes
-        void deletarCliente(List<Cliente> listaClientes) {
-            int id;
+        bool deletarCliente(List<Cliente> listaClientes) {
+            string input = "";
+            int id = -1;
+            bool insercaoEmAndamento;
             Cliente clienteDeletar = new Cliente();
 
-            Console.WriteLine("Insira o ID do usuário:");
-            id = Convert.ToInt32(Console.ReadLine());
+            Console.Clear();
+            Console.WriteLine("--INSIRA '/' PARA INTERROMPER O PROCESSO\n");
 
-            bool idExistente = false;
-            foreach(Cliente cliente in listaClientes) {
-                if(cliente.getId().Equals(id)) {
-                    idExistente = true;
-                    clienteDeletar = cliente;
+            //Loop para receber um id, encerra ao receber um id válido
+            insercaoEmAndamento = true;
+            while(insercaoEmAndamento) {
+                Console.WriteLine("Insira o ID do usuário:");
+                input = Console.ReadLine();
+
+                //Caso o input seja '/', interrompe a operação
+                if("/".Equals(input))
+                    return false;
+                
+                //Tenta converter o input em um id válido
+                try {
+                    id = Convert.ToInt32(input);
+                    if(verificarId(id, listaClientes))
+                        insercaoEmAndamento = false; //Caso seja válido e não ocorram erros, continua a operação
+                } catch(Exception e) {
+                } finally {
+                    if(insercaoEmAndamento)
+                        Console.WriteLine("--INSERÇÃO INVÁLIDA--");
                 }
             }
-            if(!idExistente)
-                throw new Exception();
-            
+
+            clienteDeletar = listaClientes.Find(cliente => cliente.getId().Equals(id));
             listaClientes.Remove(clienteDeletar);
+            return true;
         }
 
 
@@ -206,6 +286,7 @@ namespace AllogAula4
             StreamWriter escritorArquivo;
             List<Cliente> listaClientes;
             int inputMenu;
+            bool operacaoResult = false;
 
             //Verifica a existência do arquivo. Caso o arquivo não exista, ele é criado.
             if(!File.Exists(filepath)) {
@@ -232,66 +313,46 @@ namespace AllogAula4
                 try {
                     inputMenu = Convert.ToInt32(Console.ReadLine());
                 } catch(Exception e) {
-                    view.inputInvalido();
-                    Console.ReadLine();
-                    continue;
+                    inputMenu = -1;
                 }
 
+                Console.Clear();
                 switch(inputMenu) {
                     case 0: //ENCERRAR APLICAÇÃO
                         mainLoopAtivo = false;
                         break;
                     
                     case 1: //CADASTRAR CLIENTE
-                        Console.Clear();
-                        try {
-                            inserirCliente(listaClientes);
-                            updateArquivoClientes(filepath, listaClientes);
-                            view.processoConcluido();
-                            Console.ReadLine();
-                        } catch(Exception e) {
-                            view.inputInvalido();
-                            Console.ReadLine();
-                            continue;
-                        }
+                        operacaoResult = inserirCliente(listaClientes);
                         break;
 
                     case 2: //EDITAR CLIENTE
-                        try {
-                            editarCliente(listaClientes);
-                            updateArquivoClientes(filepath, listaClientes);
-                            view.processoConcluido();
-                            Console.ReadLine();
-                        } catch(Exception e) {
-                            view.inputInvalido();
-                            Console.ReadLine();
-                            continue;
-                        }
+                        operacaoResult = editarCliente(listaClientes);
                         break;
 
                     case 3: //DELETAR CLIENTE
-                        try {
-                            deletarCliente(listaClientes);
-                            updateArquivoClientes(filepath, listaClientes);
-                            view.processoConcluido();
-                            Console.ReadLine();
-                        } catch(Exception e) {
-                            view.inputInvalido();
-                            Console.ReadLine();
-                            continue;
-                        }
+                        operacaoResult = deletarCliente(listaClientes);
                         break;
 
                     case 4: //VISUALIZAR CLIENTES
                         Console.Clear();
                         view.visualizarClientes(listaClientes);
                         Console.ReadLine();
-                        break;
+                        continue;
 
                     default: //INSERÇÃO INVÁLIDA
-                        view.inputInvalido();
+                        Console.WriteLine("--INSERÇÃO INVÁLIDA--");
                         Console.ReadLine();
-                        break;
+                        continue;
+                }
+
+                if(operacaoResult) {
+                    updateArquivoClientes(filepath, listaClientes);
+                    view.processoConcluido();
+                    Console.ReadLine();
+                } else {
+                    view.operacaoInterrompida();
+                    Console.ReadLine();
                 }
             }
 
